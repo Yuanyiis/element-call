@@ -250,9 +250,11 @@
     },
     "volunteer": {
       "dashboard_title": "Volunteer Dashboard",
+      "subtitle": "Help visually impaired people by describing what you see",
       "status_online": "Online",
       "status_offline": "Offline",
       "waiting": "Waiting for help requests...",
+      "waiting_description": "You will be automatically connected when someone needs help",
       "online_volunteers": "Currently online volunteers: {{count}}",
       "helped_today": "You helped {{count}} people today",
       "total_helped": "Total people helped: {{count}}",
@@ -261,7 +263,8 @@
       "start_waiting": "Start waiting for requests",
       "incoming_request": "Incoming help request!",
       "accept_request": "Accept",
-      "decline_request": "Decline"
+      "decline_request": "Decline",
+      "tip": "Tip: Keep this window open and you'll be notified when someone needs help"
     },
     "help": {
       "title": "Get Visual Assistance",

@@ -1,0 +1,193 @@
+/*
+Copyright 2021-2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE in the repository root for full details.
+*/
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--cpd-color-bg-canvas-default);
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--cpd-color-bg-success-subtle);
+  border-radius: 20px;
+  margin-right: 16px;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cpd-color-icon-success-primary);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.waitingAnimation {
+  margin-bottom: 32px;
+}
+
+.pulse {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--cpd-color-bg-action-primary-rest);
+  position: relative;
+  animation: pulseAnimation 2s ease-in-out infinite;
+}
+
+@keyframes pulseAnimation {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.pulse::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: 50%;
+  border: 2px solid var(--cpd-color-border-interactive-primary);
+  animation: ripple 2s ease-out infinite;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.icon {
+  font-size: 48px;
+  filter: grayscale(1) brightness(10);
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 12px;
+  color: var(--cpd-color-text-primary);
+}
+
+.description {
+  text-align: center;
+  color: var(--cpd-color-text-secondary);
+  margin-bottom: 32px;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--cpd-color-bg-subtle-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--cpd-color-border-interactive-secondary);
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statLabel {
+  color: var(--cpd-color-text-secondary);
+}
+
+.actions {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.stopButton {
+  width: 100%;
+  min-height: 48px;
+}
+
+.tip {
+  text-align: center;
+  padding: 16px;
+  background: var(--cpd-color-bg-info-subtle);
+  border-radius: 8px;
+  border: 1px solid var(--cpd-color-border-info-subtle);
+}
+
+.tipText {
+  color: var(--cpd-color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 16px;
+  }
+
+  .pulse {
+    width: 100px;
+    height: 100px;
+  }
+
+  .icon {
+    font-size: 40px;
+  }
+
+  .stats {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse,
+  .statusDot,
+  .pulse::before {
+    animation: none;
+  }
+}

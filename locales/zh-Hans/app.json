@@ -144,9 +144,11 @@
     },
     "volunteer": {
       "dashboard_title": "志愿者工作台",
+      "subtitle": "通过描述您看到的内容来帮助视障人士",
       "status_online": "在线",
       "status_offline": "离线",
       "waiting": "等待帮助请求中...",
+      "waiting_description": "当有人需要帮助时，您将自动连接",
       "online_volunteers": "当前在线志愿者：{{count}} 人",
       "helped_today": "您今天已帮助 {{count}} 人",
       "total_helped": "累计帮助人数：{{count}}",
@@ -155,7 +157,8 @@
       "start_waiting": "开始等待请求",
       "incoming_request": "收到帮助请求！",
       "accept_request": "接受",
-      "decline_request": "拒绝"
+      "decline_request": "拒绝",
+      "tip": "提示：保持此窗口打开，当有人需要帮助时您将收到通知"
     },
     "help": {
       "title": "获取视觉帮助",
