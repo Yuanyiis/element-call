@@ -215,6 +215,15 @@
       "total_calls": "总通话次数",
       "average_rating": "平均评分",
       "total_time": "累计帮助时长"
+    },
+    "camera": {
+      "to_front": "前置摄像头",
+      "to_rear": "后置摄像头",
+      "flash_on": "开启闪光灯",
+      "flash_off": "关闭闪光灯",
+      "flash_not_supported": "此设备不支持闪光灯",
+      "switch_failed": "切换摄像头失败",
+      "permission_denied": "摄像头权限被拒绝"
     }
   }
 }

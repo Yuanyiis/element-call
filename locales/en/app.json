@@ -321,6 +321,15 @@
       "total_calls": "Total calls",
       "average_rating": "Average rating",
       "total_time": "Total time helped"
+    },
+    "camera": {
+      "to_front": "Front Camera",
+      "to_rear": "Rear Camera",
+      "flash_on": "Flash On",
+      "flash_off": "Flash Off",
+      "flash_not_supported": "Flashlight not supported on this device",
+      "switch_failed": "Failed to switch camera",
+      "permission_denied": "Camera permission denied"
     }
   }
 }

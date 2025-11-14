@@ -1,0 +1,35 @@
+/*
+Copyright 2021-2024 New Vector Ltd.
+
+SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
+Please see LICENSE in the repository root for full details.
+*/
+
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  font-size: 16px;
+}
+
+.icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  .controlButton {
+    flex: 1;
+    min-width: 140px;
+  }
+}
