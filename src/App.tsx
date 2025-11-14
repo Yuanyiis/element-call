@@ -36,6 +36,7 @@ import { RoleProvider } from "./bme/RoleContext";
 import { RoleSelectionPage } from "./bme/RoleSelectionPage";
 import { MatchingProvider } from "./bme/matching";
 import { VolunteerDashboard } from "./bme/volunteer";
+import { HelpRequestView } from "./bme/help";
 
 const SentryRoute = Sentry.withSentryReactRouterV7Routing(Route);
 
@@ -94,6 +95,7 @@ export const App: FC<Props> = ({ vm }) => {
                 <Routes>
                   <SentryRoute path="/" element={<RoleSelectionPage />} />
                   <SentryRoute path="/volunteer" element={<VolunteerDashboard />} />
+                  <SentryRoute path="/help" element={<HelpRequestView />} />
                   <SentryRoute path="/home" element={<HomePage />} />
                   <SentryRoute path="/login" element={<LoginPage />} />
                   <SentryRoute path="/register" element={<RegisterPage />} />
