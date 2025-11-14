@@ -235,5 +235,72 @@
     "muted_for_me": "Muted for me",
     "volume": "Volume",
     "waiting_for_media": "Waiting for media..."
+  },
+  "bme": {
+    "role_selection": {
+      "title": "Be My Eyes Helper",
+      "subtitle": "Connect volunteers with visually impaired people through video calls",
+      "volunteer": "I'm a Volunteer",
+      "volunteer_desc": "Help visually impaired people by describing what you see through their camera",
+      "volunteer_aria": "Become a volunteer to help visually impaired people",
+      "need_help": "I Need Help",
+      "need_help_desc": "Connect with a volunteer who can help you see through video",
+      "help_aria": "Request help from a volunteer",
+      "privacy": "Your privacy is protected. All calls are encrypted."
+    },
+    "volunteer": {
+      "dashboard_title": "Volunteer Dashboard",
+      "status_online": "Online",
+      "status_offline": "Offline",
+      "waiting": "Waiting for help requests...",
+      "online_volunteers": "Currently online volunteers: {{count}}",
+      "helped_today": "You helped {{count}} people today",
+      "total_helped": "Total people helped: {{count}}",
+      "total_duration": "Total time: {{hours}} hours",
+      "stop_waiting": "Stop waiting",
+      "start_waiting": "Start waiting for requests",
+      "incoming_request": "Incoming help request!",
+      "accept_request": "Accept",
+      "decline_request": "Decline"
+    },
+    "help": {
+      "title": "Get Visual Assistance",
+      "find_volunteer": "Find Volunteer",
+      "searching": "Searching for an available volunteer...",
+      "queue_position": "{{count}} people ahead of you",
+      "estimated_wait": "Estimated wait time: {{minutes}} minutes",
+      "no_volunteers": "No volunteers available right now",
+      "no_volunteers_desc": "Please try again later or check back soon",
+      "try_again": "Try again",
+      "cancel_search": "Cancel search",
+      "connected": "Connected to volunteer",
+      "flashlight": "Flashlight",
+      "switch_camera": "Switch camera",
+      "camera_permission": "Camera access required",
+      "camera_permission_desc": "Please allow camera access to get help"
+    },
+    "call": {
+      "duration": "Call duration",
+      "end_call": "End call",
+      "volunteer_view": "Volunteer's view",
+      "your_camera": "Your camera",
+      "poor_connection": "Poor connection",
+      "reconnecting": "Reconnecting..."
+    },
+    "feedback": {
+      "title": "Rate your experience",
+      "rate_volunteer": "How was the help you received?",
+      "rate_experience": "How was this call?",
+      "comment_placeholder": "Any additional comments? (optional)",
+      "submit": "Submit feedback",
+      "thank_you": "Thank you for your feedback!",
+      "skip": "Skip"
+    },
+    "stats": {
+      "calls_today": "Calls today",
+      "total_calls": "Total calls",
+      "average_rating": "Average rating",
+      "total_time": "Total time helped"
+    }
   }
 }

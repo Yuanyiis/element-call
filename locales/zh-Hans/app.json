@@ -129,5 +129,72 @@
     "change_fit_contain": "贴合框架",
     "mute_for_me": "为我静音",
     "volume": "音量"
+  },
+  "bme": {
+    "role_selection": {
+      "title": "Be My Eyes 助手",
+      "subtitle": "通过视频通话连接志愿者和视障人士",
+      "volunteer": "我是志愿者",
+      "volunteer_desc": "通过描述您看到的内容来帮助视障人士",
+      "volunteer_aria": "成为志愿者帮助视障人士",
+      "need_help": "我需要帮助",
+      "need_help_desc": "连接可以通过视频帮助您的志愿者",
+      "help_aria": "向志愿者请求帮助",
+      "privacy": "您的隐私受到保护。所有通话均已加密。"
+    },
+    "volunteer": {
+      "dashboard_title": "志愿者工作台",
+      "status_online": "在线",
+      "status_offline": "离线",
+      "waiting": "等待帮助请求中...",
+      "online_volunteers": "当前在线志愿者：{{count}} 人",
+      "helped_today": "您今天已帮助 {{count}} 人",
+      "total_helped": "累计帮助人数：{{count}}",
+      "total_duration": "总时长：{{hours}} 小时",
+      "stop_waiting": "停止等待",
+      "start_waiting": "开始等待请求",
+      "incoming_request": "收到帮助请求！",
+      "accept_request": "接受",
+      "decline_request": "拒绝"
+    },
+    "help": {
+      "title": "获取视觉帮助",
+      "find_volunteer": "寻找志愿者",
+      "searching": "正在寻找可用的志愿者...",
+      "queue_position": "您前面还有 {{count}} 人",
+      "estimated_wait": "预计等待时间：{{minutes}} 分钟",
+      "no_volunteers": "当前没有可用的志愿者",
+      "no_volunteers_desc": "请稍后重试或过会儿再查看",
+      "try_again": "重试",
+      "cancel_search": "取消搜索",
+      "connected": "已连接到志愿者",
+      "flashlight": "闪光灯",
+      "switch_camera": "切换摄像头",
+      "camera_permission": "需要摄像头访问权限",
+      "camera_permission_desc": "请允许摄像头访问以获得帮助"
+    },
+    "call": {
+      "duration": "通话时长",
+      "end_call": "结束通话",
+      "volunteer_view": "志愿者视角",
+      "your_camera": "您的摄像头",
+      "poor_connection": "网络连接较差",
+      "reconnecting": "重新连接中..."
+    },
+    "feedback": {
+      "title": "评价您的体验",
+      "rate_volunteer": "您获得的帮助如何？",
+      "rate_experience": "本次通话体验如何？",
+      "comment_placeholder": "还有其他意见吗？（可选）",
+      "submit": "提交反馈",
+      "thank_you": "感谢您的反馈！",
+      "skip": "跳过"
+    },
+    "stats": {
+      "calls_today": "今日通话",
+      "total_calls": "总通话次数",
+      "average_rating": "平均评分",
+      "total_time": "累计帮助时长"
+    }
   }
 }

@@ -32,6 +32,9 @@ import { type AppViewModel } from "./state/AppViewModel";
 import { MediaDevicesContext } from "./MediaDevicesContext";
 import { getUrlParams, HeaderStyle } from "./UrlParams";
 import { AppBar } from "./AppBar";
+import { RoleProvider } from "./bme/RoleContext";
+import { RoleSelectionPage } from "./bme/RoleSelectionPage";
+import { MatchingProvider } from "./bme/matching";
 
 const SentryRoute = Sentry.withSentryReactRouterV7Routing(Route);
 
@@ -79,22 +82,27 @@ export const App: FC<Props> = ({ vm }) => {
   const { header } = useMemo(getUrlParams, []);
 
   const content = loaded ? (
-    <ClientProvider>
-      <MediaDevicesContext value={vm.mediaDevices}>
-        <ProcessorProvider>
-          <Sentry.ErrorBoundary
-            fallback={(error) => <ErrorPage error={error} widget={widget} />}
-          >
-            <Routes>
-              <SentryRoute path="/" element={<HomePage />} />
-              <SentryRoute path="/login" element={<LoginPage />} />
-              <SentryRoute path="/register" element={<RegisterPage />} />
-              <SentryRoute path="*" element={<RoomPage />} />
-            </Routes>
-          </Sentry.ErrorBoundary>
-        </ProcessorProvider>
-      </MediaDevicesContext>
-    </ClientProvider>
+    <RoleProvider>
+      <ClientProvider>
+        <MatchingProvider>
+          <MediaDevicesContext value={vm.mediaDevices}>
+            <ProcessorProvider>
+              <Sentry.ErrorBoundary
+                fallback={(error) => <ErrorPage error={error} widget={widget} />}
+              >
+                <Routes>
+                  <SentryRoute path="/" element={<RoleSelectionPage />} />
+                  <SentryRoute path="/home" element={<HomePage />} />
+                  <SentryRoute path="/login" element={<LoginPage />} />
+                  <SentryRoute path="/register" element={<RegisterPage />} />
+                  <SentryRoute path="*" element={<RoomPage />} />
+                </Routes>
+              </Sentry.ErrorBoundary>
+            </ProcessorProvider>
+          </MediaDevicesContext>
+        </MatchingProvider>
+      </ClientProvider>
+    </RoleProvider>
   ) : (
     <LoadingPage />
   );
