@@ -16,7 +16,7 @@ import { useMatchingContext } from "../matching";
 import { MatchingState } from "../matching/useMatching";
 import { Header, HeaderLogo, LeftNav, RightNav } from "../../Header";
 import { UserMenuContainer } from "../../UserMenuContainer";
-import { useClientLegacy } from "../../ClientContext";
+import { useAutoGuestLogin } from "../useAutoGuestLogin";
 import { SearchingView } from "./SearchingView";
 import { NoVolunteersView } from "./NoVolunteersView";
 import styles from "./HelpRequestView.module.css";
@@ -28,7 +28,7 @@ export const HelpRequestView: FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { language } = useRoleContext();
-  const { authenticated } = useClientLegacy();
+  const { isLoggingIn, error: loginError } = useAutoGuestLogin();
   const {
     state,
     error,
@@ -41,13 +41,6 @@ export const HelpRequestView: FC = () => {
   const [cameraPermission, setCameraPermission] = useState<
     "prompt" | "granted" | "denied"
   >("prompt");
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authenticated) {
-      navigate("/login");
-    }
-  }, [authenticated, navigate]);
 
   // Check camera permission
   useEffect(() => {
@@ -104,6 +97,32 @@ export const HelpRequestView: FC = () => {
     }
   }, [requestHelp, language, cameraPermission]);
 
+  // Show loading state while logging in
+  if (isLoggingIn) {
+    return (
+      <div className={styles.container}>
+        <Header>
+          <LeftNav>
+            <HeaderLogo />
+          </LeftNav>
+          <RightNav>
+            <UserMenuContainer />
+          </RightNav>
+        </Header>
+        <div className={styles.content}>
+          <div className={styles.header}>
+            <Heading size="lg" weight="semibold" className={styles.title}>
+              {t("common.loading", "Loading...")}
+            </Heading>
+            <Text className={styles.subtitle}>
+              {t("bme.help.preparing", "Preparing your session...")}
+            </Text>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Show searching view
   if (state === MatchingState.SearchingForVolunteer) {
     return <SearchingView availableVolunteers={availableVolunteers} />;
@@ -153,9 +172,9 @@ export const HelpRequestView: FC = () => {
           </div>
         )}
 
-        {error && !error.includes("No volunteers") && (
+        {((error && !error.includes("No volunteers")) || loginError) && (
           <div className={styles.error}>
-            <Text>{error}</Text>
+            <Text>{error || loginError}</Text>
           </div>
         )}
 

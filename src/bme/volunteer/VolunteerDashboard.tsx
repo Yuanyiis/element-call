@@ -16,7 +16,7 @@ import { useMatchingContext } from "../matching";
 import { MatchingState } from "../matching/useMatching";
 import { Header, HeaderLogo, LeftNav, RightNav } from "../../Header";
 import { UserMenuContainer } from "../../UserMenuContainer";
-import { useClientLegacy } from "../../ClientContext";
+import { useAutoGuestLogin } from "../useAutoGuestLogin";
 import { VolunteerWaitingView } from "./VolunteerWaitingView";
 import styles from "./VolunteerDashboard.module.css";
 
@@ -27,7 +27,7 @@ export const VolunteerDashboard: FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { language, stats } = useRoleContext();
-  const { authenticated } = useClientLegacy();
+  const { isLoggingIn, error: loginError } = useAutoGuestLogin();
   const {
     state,
     error,
@@ -39,13 +39,6 @@ export const VolunteerDashboard: FC = () => {
   } = useMatchingContext();
 
   const [isStarting, setIsStarting] = useState(false);
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authenticated) {
-      navigate("/login");
-    }
-  }, [authenticated, navigate]);
 
   // Refresh volunteer count on mount
   useEffect(() => {
@@ -95,6 +88,32 @@ export const VolunteerDashboard: FC = () => {
   // Calculate hours from total duration
   const totalHours = Math.floor(stats.totalDuration / 3600);
 
+  // Show loading state while logging in
+  if (isLoggingIn) {
+    return (
+      <div className={styles.container}>
+        <Header>
+          <LeftNav>
+            <HeaderLogo />
+          </LeftNav>
+          <RightNav>
+            <UserMenuContainer />
+          </RightNav>
+        </Header>
+        <div className={styles.content}>
+          <div className={styles.header}>
+            <Heading size="lg" weight="semibold">
+              {t("common.loading", "Loading...")}
+            </Heading>
+            <Text className={styles.subtitle}>
+              {t("bme.volunteer.preparing", "Preparing your volunteer session...")}
+            </Text>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <Header>
@@ -119,9 +138,9 @@ export const VolunteerDashboard: FC = () => {
           </Text>
         </div>
 
-        {error && (
+        {(error || loginError) && (
           <div className={styles.error}>
-            <Text>{error}</Text>
+            <Text>{error || loginError}</Text>
           </div>
         )}
 
