@@ -78,11 +78,11 @@ apt-get install -y curl wget git build-essential || {
 }
 print_status "Basic dependencies installed"
 
-# Step 4: Install Node.js 20
+# Step 4: Install Node.js 22
 echo ""
-echo "[4/9] Installing Node.js 20..."
-if ! command -v node &> /dev/null || [ "$(node -v | cut -d'.' -f1 | sed 's/v//')" -lt 20 ]; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+echo "[4/9] Installing Node.js 22..."
+if ! command -v node &> /dev/null || [ "$(node -v | cut -d'.' -f1 | sed 's/v//')" -lt 22 ]; then
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
     apt-get install -y nodejs
     print_status "Node.js $(node -v) installed"
 else
