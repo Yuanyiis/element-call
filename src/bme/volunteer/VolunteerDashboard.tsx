@@ -73,13 +73,14 @@ export const VolunteerDashboard: FC = () => {
   // Navigate to call room when registered as volunteer or matched with help seeker
   useEffect(() => {
     if (state === MatchingState.WaitingAsVolunteer && matchResult?.roomId) {
-      // Volunteer should enter their call room and wait there
+      // Volunteer should enter their call room and start the call
+      // Use skipLobby=true to automatically start the call without showing lobby
       logger.info(`Volunteer registered. Navigating to call room: ${matchResult.roomId}`);
-      navigate(`/${matchResult.roomId}`);
+      navigate(`/${matchResult.roomId}?skipLobby=true`);
     } else if (state === MatchingState.Matched && matchResult?.roomId) {
       // Also handle being matched (this may not be needed for volunteers)
       logger.info(`Matched! Navigating to call room: ${matchResult.roomId}`);
-      navigate(`/${matchResult.roomId}`);
+      navigate(`/${matchResult.roomId}?skipLobby=true`);
     }
   }, [state, matchResult, navigate]);
 

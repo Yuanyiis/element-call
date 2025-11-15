@@ -80,8 +80,8 @@ export const HelpRequestView: FC = () => {
 
       // Use a slight delay to ensure state is properly set
       setTimeout(() => {
-        logger.info(`Executing navigation to: /${matchResult.roomId}`);
-        navigate(`/${matchResult.roomId}`);
+        logger.info(`Executing navigation to: /${matchResult.roomId}?skipLobby=true`);
+        navigate(`/${matchResult.roomId}?skipLobby=true`);
       }, 500);
     } else if (state === MatchingState.Error) {
       logger.error(`Matching failed: ${error || matchResult?.error || "Unknown error"}`);
