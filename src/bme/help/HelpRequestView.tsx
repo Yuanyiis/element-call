@@ -71,18 +71,41 @@ export const HelpRequestView: FC = () => {
 
   // Navigate to call room when matched
   useEffect(() => {
+    logger.info(`State changed: ${state}, matchResult: ${JSON.stringify(matchResult)}`);
+
     if (state === MatchingState.Matched && matchResult?.roomId) {
-      logger.info(`Navigating to call room: ${matchResult.roomId}`);
-      navigate(`/${matchResult.roomId}`);
+      logger.info(`Match successful! Navigating to call room: ${matchResult.roomId}`);
+
+      // Use a slight delay to ensure state is properly set
+      setTimeout(() => {
+        logger.info(`Executing navigation to: /${matchResult.roomId}`);
+        navigate(`/${matchResult.roomId}`);
+      }, 500);
+    } else if (state === MatchingState.Error) {
+      logger.error(`Matching failed: ${error || matchResult?.error || "Unknown error"}`);
     }
-  }, [state, matchResult, navigate]);
+  }, [state, matchResult, navigate, error]);
 
   const handleRequestHelp = useCallback(async () => {
-    // Request camera permission first
+    logger.info("handleRequestHelp called");
+
+    // Request camera permission first with rear camera preference
     if (cameraPermission !== "granted") {
       try {
-        await navigator.mediaDevices.getUserMedia({ video: true });
+        logger.info("Requesting camera permission with rear camera...");
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" }, // Rear camera
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        });
+
+        // Stop the stream immediately as we just needed permission
+        stream.getTracks().forEach((track) => track.stop());
+
         setCameraPermission("granted");
+        logger.info("Camera permission granted");
       } catch (err) {
         logger.error("Failed to get camera permission", err);
         setCameraPermission("denied");
@@ -91,7 +114,9 @@ export const HelpRequestView: FC = () => {
     }
 
     try {
+      logger.info(`Requesting help with language: ${language}`);
       await requestHelp(language);
+      logger.info("Help request sent successfully");
     } catch (err) {
       logger.error("Failed to request help", err);
     }

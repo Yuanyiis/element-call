@@ -99,35 +99,65 @@ export class MatchingService {
    */
   async requestHelp(language: string): Promise<MatchResult> {
     try {
-      logger.info(`Requesting help with language: ${language}`);
+      logger.info(`[MatchingService] Requesting help with language: ${language}`);
 
       const matchResult = await this.volunteerPool.findAvailableVolunteer(
         language,
       );
 
+      logger.info(`[MatchingService] Match result:`, matchResult);
+
       if (matchResult.success && matchResult.roomId) {
         // Join the volunteer's room
         try {
+          logger.info(`[MatchingService] Joining volunteer room: ${matchResult.roomId}`);
           await this.client.joinRoom(matchResult.roomId);
+
+          // Wait for room to be available in client
+          logger.info(`[MatchingService] Waiting for room to sync...`);
+          await this.waitForRoom(matchResult.roomId);
+
           this.currentCallRoomId = matchResult.roomId;
-          logger.info(`Joined volunteer room: ${matchResult.roomId}`);
+          logger.info(`[MatchingService] Successfully joined volunteer room: ${matchResult.roomId}`);
         } catch (error) {
-          logger.error("Failed to join volunteer room", error);
+          logger.error("[MatchingService] Failed to join volunteer room", error);
           return {
             success: false,
             error: "Failed to connect to volunteer",
           };
         }
+      } else {
+        logger.warn(`[MatchingService] No match found: ${matchResult.error || "Unknown reason"}`);
       }
 
       return matchResult;
     } catch (error) {
-      logger.error("Failed to request help", error);
+      logger.error("[MatchingService] Failed to request help", error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
       };
     }
+  }
+
+  /**
+   * Wait for room to be synced and available
+   */
+  private async waitForRoom(roomId: string, maxAttempts = 15): Promise<void> {
+    for (let i = 0; i < maxAttempts; i++) {
+      const room = this.client.getRoom(roomId);
+      if (room) {
+        logger.info(`[MatchingService] Room ${roomId} is available (attempt ${i + 1})`);
+        return;
+      }
+
+      logger.info(
+        `[MatchingService] Waiting for room ${roomId} to sync... (attempt ${i + 1}/${maxAttempts})`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1s
+    }
+
+    throw new Error(`Room ${roomId} did not sync after ${maxAttempts} attempts`);
   }
 
   /**
