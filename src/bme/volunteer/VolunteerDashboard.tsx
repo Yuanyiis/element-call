@@ -18,6 +18,7 @@ import { Header, HeaderLogo, LeftNav, RightNav } from "../../Header";
 import { UserMenuContainer } from "../../UserMenuContainer";
 import { useAutoGuestLogin } from "../useAutoGuestLogin";
 import { VolunteerWaitingView } from "./VolunteerWaitingView";
+import { DebugPanel } from "../DebugPanel";
 import styles from "./VolunteerDashboard.module.css";
 
 /**
@@ -42,6 +43,7 @@ export const VolunteerDashboard: FC = () => {
   const [micPermission, setMicPermission] = useState<
     "prompt" | "granted" | "denied"
   >("prompt");
+  const [showDebug, setShowDebug] = useState(false);
 
   // Check microphone permission
   useEffect(() => {
@@ -264,8 +266,25 @@ export const VolunteerDashboard: FC = () => {
               { count: availableVolunteers },
             )}
           </Text>
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            style={{
+              marginTop: "15px",
+              padding: "8px 16px",
+              fontSize: "12px",
+              cursor: "pointer",
+              backgroundColor: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+            }}
+          >
+            🐛 {showDebug ? "Hide" : "Show"} Debug Panel
+          </button>
         </div>
       </div>
+
+      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
     </div>
   );
 };

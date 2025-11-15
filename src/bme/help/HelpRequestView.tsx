@@ -19,6 +19,7 @@ import { UserMenuContainer } from "../../UserMenuContainer";
 import { useAutoGuestLogin } from "../useAutoGuestLogin";
 import { SearchingView } from "./SearchingView";
 import { NoVolunteersView } from "./NoVolunteersView";
+import { DebugPanel } from "../DebugPanel";
 import styles from "./HelpRequestView.module.css";
 
 /**
@@ -41,6 +42,7 @@ export const HelpRequestView: FC = () => {
   const [cameraPermission, setCameraPermission] = useState<
     "prompt" | "granted" | "denied"
   >("prompt");
+  const [showDebug, setShowDebug] = useState(false);
 
   // Check camera permission
   useEffect(() => {
@@ -270,8 +272,26 @@ export const HelpRequestView: FC = () => {
               </Text>
             </li>
           </ul>
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            style={{
+              marginTop: "15px",
+              padding: "8px 16px",
+              fontSize: "12px",
+              cursor: "pointer",
+              backgroundColor: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+              width: "100%",
+            }}
+          >
+            🐛 {showDebug ? "Hide" : "Show"} Debug Panel
+          </button>
         </div>
       </div>
+
+      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
     </div>
   );
 };
