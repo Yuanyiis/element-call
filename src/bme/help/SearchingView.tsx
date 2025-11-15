@@ -5,13 +5,14 @@ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
 Please see LICENSE in the repository root for full details.
 */
 
-import { type FC, useCallback } from "react";
+import { type FC, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Heading, Text } from "@vector-im/compound-web";
 
 import { useMatchingContext } from "../matching";
 import { Header, HeaderLogo, LeftNav, RightNav } from "../../Header";
 import { UserMenuContainer } from "../../UserMenuContainer";
+import { DebugPanel } from "../DebugPanel";
 import styles from "./SearchingView.module.css";
 
 interface Props {
@@ -24,6 +25,7 @@ interface Props {
 export const SearchingView: FC<Props> = ({ availableVolunteers }) => {
   const { t } = useTranslation();
   const { cancelHelpRequest } = useMatchingContext();
+  const [showDebug, setShowDebug] = useState(false);
 
   const handleCancel = useCallback(() => {
     cancelHelpRequest();
@@ -92,8 +94,25 @@ export const SearchingView: FC<Props> = ({ availableVolunteers }) => {
               "Keep your camera ready and make sure you're in a well-lit area",
             )}
           </Text>
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            style={{
+              marginTop: "15px",
+              padding: "8px 16px",
+              fontSize: "12px",
+              cursor: "pointer",
+              backgroundColor: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+            }}
+          >
+            🐛 {showDebug ? "Hide" : "Show"} Debug Panel
+          </button>
         </div>
       </div>
+
+      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
     </div>
   );
 };

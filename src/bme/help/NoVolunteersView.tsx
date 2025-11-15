@@ -5,12 +5,13 @@ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
 Please see LICENSE in the repository root for full details.
 */
 
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Heading, Text } from "@vector-im/compound-web";
 
 import { Header, HeaderLogo, LeftNav, RightNav } from "../../Header";
 import { UserMenuContainer } from "../../UserMenuContainer";
+import { DebugPanel } from "../DebugPanel";
 import styles from "./NoVolunteersView.module.css";
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
  */
 export const NoVolunteersView: FC<Props> = ({ onRetry }) => {
   const { t } = useTranslation();
+  const [showDebug, setShowDebug] = useState(false);
 
   return (
     <div className={styles.container}>
@@ -99,8 +101,25 @@ export const NoVolunteersView: FC<Props> = ({ onRetry }) => {
               "Our volunteers are amazing people helping in their free time",
             )}
           </Text>
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            style={{
+              marginTop: "15px",
+              padding: "8px 16px",
+              fontSize: "12px",
+              cursor: "pointer",
+              backgroundColor: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+            }}
+          >
+            🐛 {showDebug ? "Hide" : "Show"} Debug Panel
+          </button>
         </div>
       </div>
+
+      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
     </div>
   );
 };
