@@ -19,6 +19,7 @@ import { UserMenuContainer } from "../../UserMenuContainer";
 import { useAutoGuestLogin } from "../useAutoGuestLogin";
 import { VolunteerWaitingView } from "./VolunteerWaitingView";
 import { DebugPanel } from "../DebugPanel";
+import { Config } from "../../config/Config";
 import styles from "./VolunteerDashboard.module.css";
 
 /**
@@ -75,12 +76,15 @@ export const VolunteerDashboard: FC = () => {
     if (state === MatchingState.WaitingAsVolunteer && matchResult?.roomId) {
       // Volunteer should enter their call room and start the call
       // Use skipLobby=true to automatically start the call without showing lobby
-      logger.info(`Volunteer registered. Navigating to call room: ${matchResult.roomId}`);
-      navigate(`/${matchResult.roomId}?skipLobby=true`);
+      // IMPORTANT: Include viaServers parameter so Element Call can find the room
+      const serverName = Config.defaultServerName() || "call.fst.gs";
+      logger.info(`Volunteer registered. Navigating to call room: ${matchResult.roomId} via ${serverName}`);
+      navigate(`/${matchResult.roomId}?skipLobby=true&viaServers=${serverName}`);
     } else if (state === MatchingState.Matched && matchResult?.roomId) {
       // Also handle being matched (this may not be needed for volunteers)
-      logger.info(`Matched! Navigating to call room: ${matchResult.roomId}`);
-      navigate(`/${matchResult.roomId}?skipLobby=true`);
+      const serverName = Config.defaultServerName() || "call.fst.gs";
+      logger.info(`Matched! Navigating to call room: ${matchResult.roomId} via ${serverName}`);
+      navigate(`/${matchResult.roomId}?skipLobby=true&viaServers=${serverName}`);
     }
   }, [state, matchResult, navigate]);
 

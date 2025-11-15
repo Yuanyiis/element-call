@@ -20,6 +20,7 @@ import { useAutoGuestLogin } from "../useAutoGuestLogin";
 import { SearchingView } from "./SearchingView";
 import { NoVolunteersView } from "./NoVolunteersView";
 import { DebugPanel } from "../DebugPanel";
+import { Config } from "../../config/Config";
 import styles from "./HelpRequestView.module.css";
 
 /**
@@ -80,8 +81,10 @@ export const HelpRequestView: FC = () => {
 
       // Use a slight delay to ensure state is properly set
       setTimeout(() => {
-        logger.info(`Executing navigation to: /${matchResult.roomId}?skipLobby=true`);
-        navigate(`/${matchResult.roomId}?skipLobby=true`);
+        // IMPORTANT: Include viaServers parameter so Element Call can find the room
+        const serverName = Config.defaultServerName() || "call.fst.gs";
+        logger.info(`Executing navigation to: /${matchResult.roomId}?skipLobby=true&viaServers=${serverName}`);
+        navigate(`/${matchResult.roomId}?skipLobby=true&viaServers=${serverName}`);
       }, 500);
     } else if (state === MatchingState.Error) {
       logger.error(`Matching failed: ${error || matchResult?.error || "Unknown error"}`);
