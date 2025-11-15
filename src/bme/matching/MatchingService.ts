@@ -41,20 +41,20 @@ export class MatchingService {
     try {
       // Create a new room for this volunteer
       const roomName = `BME-Volunteer-${Date.now()}`;
-      const { room_id, room_alias } = await createRoom(
+      const { roomId, alias } = await createRoom(
         this.client,
         roomName,
         E2eeType.SHARED_KEY,
       );
 
-      this.currentCallRoomId = room_id;
+      this.currentCallRoomId = roomId;
 
       // Register in the volunteer pool
-      await this.volunteerPool.registerVolunteer(room_id, language);
+      await this.volunteerPool.registerVolunteer(roomId, language);
 
-      logger.info(`Registered as volunteer with room: ${room_id}`);
+      logger.info(`Registered as volunteer with room: ${roomId}`);
 
-      return room_id;
+      return roomId;
     } catch (error) {
       logger.error("Failed to register as volunteer", error);
       throw error;
