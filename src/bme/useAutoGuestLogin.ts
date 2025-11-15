@@ -28,22 +28,38 @@ export function useAutoGuestLogin(): {
 
   // Trigger auto login when component mounts if not authenticated
   useEffect(() => {
+    logger.info(`[useAutoGuestLogin] Effect triggered - hasAttempted: ${hasAttempted.current}, loading: ${loading}, authenticated: ${authenticated}, setClient: ${!!setClient}`);
+
     // Only attempt once
-    if (hasAttempted.current) return;
+    if (hasAttempted.current) {
+      logger.info("[useAutoGuestLogin] Already attempted, skipping");
+      return;
+    }
 
     // Wait for client context to finish loading
-    if (loading) return;
+    if (loading) {
+      logger.info("[useAutoGuestLogin] Still loading, waiting...");
+      return;
+    }
 
     // Already authenticated, no need to login
-    if (authenticated) return;
+    if (authenticated) {
+      logger.info("[useAutoGuestLogin] Already authenticated, skipping");
+      return;
+    }
 
     // No setClient function available
-    if (!setClient) return;
+    if (!setClient) {
+      logger.warn("[useAutoGuestLogin] No setClient function available!");
+      return;
+    }
 
     // Mark as attempted to prevent infinite loops
     hasAttempted.current = true;
     setIsLoggingIn(true);
     setError(null);
+
+    logger.info("[useAutoGuestLogin] All conditions met, starting auto login...");
 
     (async () => {
       try {
