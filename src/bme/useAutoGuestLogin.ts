@@ -6,7 +6,6 @@ Please see LICENSE in the repository root for full details.
 */
 
 import { useEffect, useState, useRef } from "react";
-import { createClient } from "matrix-js-sdk";
 import { logger } from "matrix-js-sdk/lib/logger";
 
 import { Config } from "../config/Config";
@@ -15,8 +14,8 @@ import { initClient } from "../utils/matrix";
 import type { Session } from "../ClientContext";
 
 /**
- * Hook that automatically logs in as a guest if not authenticated
- * Returns: { isLoggingIn: boolean, error: string | null }
+ * Hook that automatically logs in using a demo account if not authenticated
+ * This is a workaround for homeservers that don't allow guest registration
  */
 export function useAutoGuestLogin(): {
   isLoggingIn: boolean;
@@ -27,7 +26,7 @@ export function useAutoGuestLogin(): {
   const [error, setError] = useState<string | null>(null);
   const hasAttempted = useRef(false);
 
-  // Trigger guest login when component mounts if not authenticated
+  // Trigger auto login when component mounts if not authenticated
   useEffect(() => {
     // Only attempt once
     if (hasAttempted.current) return;
@@ -48,7 +47,7 @@ export function useAutoGuestLogin(): {
 
     (async () => {
       try {
-        logger.info("Starting guest login process...");
+        logger.info("Starting auto login process...");
 
         const homeserverUrl = Config.defaultHomeserverUrl();
         if (!homeserverUrl) {
@@ -57,28 +56,51 @@ export function useAutoGuestLogin(): {
 
         logger.info("Using homeserver:", homeserverUrl);
 
-        // Create temporary client for registration
-        const tempClient = createClient({ baseUrl: homeserverUrl });
+        // Generate a random demo username
+        const randomId = Math.random().toString(36).substring(2, 10);
+        const username = `bme_user_${randomId}`;
+        const password = `temp_${Math.random().toString(36).substring(2, 15)}`;
 
-        // Register as guest
-        logger.info("Registering guest account...");
-        const registerResponse = await tempClient.registerGuest({});
+        logger.info("Attempting passwordless registration...");
 
-        logger.info("Guest registered successfully", {
-          userId: registerResponse.user_id,
-          deviceId: registerResponse.device_id,
+        // Try to register the user
+        const response = await fetch(`${homeserverUrl}/_matrix/client/v3/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            auth: { type: "m.login.dummy" },
+            username: username,
+            password: password,
+            inhibit_login: false,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            `Registration failed: ${errorData.error || response.statusText}`,
+          );
+        }
+
+        const registerData = await response.json();
+
+        logger.info("Registration successful", {
+          userId: registerData.user_id,
+          deviceId: registerData.device_id,
         });
 
         // Initialize authenticated client
         const client = await initClient(
           {
             baseUrl: homeserverUrl,
-            accessToken: registerResponse.access_token,
-            userId: registerResponse.user_id,
-            deviceId: registerResponse.device_id,
+            accessToken: registerData.access_token,
+            userId: registerData.user_id,
+            deviceId: registerData.device_id,
             livekitServiceURL: Config.get().livekit?.livekit_service_url,
           },
-          false, // Don't restore crypto state for guest
+          false, // Don't restore crypto state
         );
 
         // Start the client
@@ -86,20 +108,23 @@ export function useAutoGuestLogin(): {
 
         // Create session
         const session: Session = {
-          user_id: registerResponse.user_id,
-          device_id: registerResponse.device_id,
-          access_token: registerResponse.access_token,
-          passwordlessUser: true, // Guest users are passwordless
+          user_id: registerData.user_id,
+          device_id: registerData.device_id,
+          access_token: registerData.access_token,
+          passwordlessUser: true,
+          tempPassword: password,
         };
 
         // Set the client in context
         setClient(client, session);
 
-        logger.info("Guest login complete");
+        logger.info("Auto login complete");
       } catch (err) {
-        logger.error("Failed to perform guest login", err);
+        logger.error("Failed to perform auto login", err);
         setError(
-          err instanceof Error ? err.message : "Failed to login as guest",
+          err instanceof Error
+            ? err.message
+            : "Failed to login automatically. Please check your homeserver configuration.",
         );
       } finally {
         setIsLoggingIn(false);
