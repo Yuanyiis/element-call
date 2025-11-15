@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial
 Please see LICENSE in the repository root for full details.
 */
 
-import { type FC, useCallback } from "react";
+import { type FC, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Heading, Text } from "@vector-im/compound-web";
@@ -14,6 +14,7 @@ import { UserRole } from "./types";
 import { useRoleContext } from "./RoleContext";
 import { Header, HeaderLogo, LeftNav, RightNav } from "../Header";
 import { UserMenuContainer } from "../UserMenuContainer";
+import { DebugPanel } from "./DebugPanel";
 import styles from "./RoleSelectionPage.module.css";
 
 /**
@@ -24,6 +25,7 @@ export const RoleSelectionPage: FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { setRole } = useRoleContext();
+  const [showDebug, setShowDebug] = useState(false);
 
   const handleVolunteerClick = useCallback(() => {
     setRole(UserRole.Volunteer);
@@ -114,8 +116,25 @@ export const RoleSelectionPage: FC = () => {
               "Your privacy is protected. All calls are encrypted.",
             )}
           </Text>
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            style={{
+              marginTop: "10px",
+              padding: "8px 16px",
+              fontSize: "12px",
+              cursor: "pointer",
+              backgroundColor: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: "5px",
+            }}
+          >
+            🐛 {showDebug ? "Hide" : "Show"} Debug Panel
+          </button>
         </footer>
       </div>
+
+      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
     </div>
   );
 };
