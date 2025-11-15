@@ -103,8 +103,13 @@ export function useAutoGuestLogin(): {
           false, // Don't restore crypto state
         );
 
-        // Start the client
-        await client.startClient();
+        // Start the client with minimal sync
+        // Disable push rules to avoid guest access issues
+        await client.startClient({
+          initialSyncLimit: 10,
+          // Don't fetch push rules for guest users
+          disablePresence: true,
+        });
 
         // Create session
         const session: Session = {
