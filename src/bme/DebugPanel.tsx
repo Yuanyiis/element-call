@@ -22,11 +22,28 @@ interface LogEntry {
  * Useful when browser console is not accessible
  */
 export const DebugPanel: FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>(() => {
+    // Load logs from localStorage on init
+    try {
+      const saved = localStorage.getItem("bme_debug_logs");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [isExpanded, setIsExpanded] = useState(false);
   const { client, authenticated } = useClientLegacy();
   const { state, matchResult, availableVolunteers } = useMatchingContext();
   const { role } = useRoleContext();
+
+  // Save logs to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem("bme_debug_logs", JSON.stringify(logs));
+    } catch (e) {
+      console.error("Failed to save logs to localStorage:", e);
+    }
+  }, [logs]);
 
   // Intercept logger calls
   useEffect(() => {
@@ -37,7 +54,7 @@ export const DebugPanel: FC<{ onClose: () => void }> = ({ onClose }) => {
     logger.info = (...args: any[]) => {
       originalInfo.apply(logger, args);
       setLogs((prev) => [
-        ...prev.slice(-99),
+        ...prev.slice(-199),
         {
           timestamp: Date.now(),
           level: "INFO",
@@ -49,7 +66,7 @@ export const DebugPanel: FC<{ onClose: () => void }> = ({ onClose }) => {
     logger.error = (...args: any[]) => {
       originalError.apply(logger, args);
       setLogs((prev) => [
-        ...prev.slice(-99),
+        ...prev.slice(-199),
         {
           timestamp: Date.now(),
           level: "ERROR",
@@ -61,7 +78,7 @@ export const DebugPanel: FC<{ onClose: () => void }> = ({ onClose }) => {
     logger.warn = (...args: any[]) => {
       originalWarn.apply(logger, args);
       setLogs((prev) => [
-        ...prev.slice(-99),
+        ...prev.slice(-199),
         {
           timestamp: Date.now(),
           level: "WARN",
@@ -88,6 +105,15 @@ export const DebugPanel: FC<{ onClose: () => void }> = ({ onClose }) => {
       .join("\n");
     navigator.clipboard.writeText(text);
     alert("Logs copied to clipboard!");
+  };
+
+  const clearLogs = () => {
+    setLogs([]);
+    try {
+      localStorage.removeItem("bme_debug_logs");
+    } catch (e) {
+      console.error("Failed to clear logs from localStorage:", e);
+    }
   };
 
   return (
@@ -150,7 +176,7 @@ export const DebugPanel: FC<{ onClose: () => void }> = ({ onClose }) => {
             📋 Copy Logs
           </button>
           <button
-            onClick={() => setLogs([])}
+            onClick={clearLogs}
             style={{
               padding: "4px 8px",
               fontSize: "11px",
