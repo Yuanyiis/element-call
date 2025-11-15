@@ -121,9 +121,10 @@ export function useAutoGuestLogin(): {
         };
 
         // Set the client in context
+        logger.info("Setting client in context...");
         setClient(client, session);
 
-        logger.info("Auto login complete");
+        logger.info("Auto login complete - client should be available now");
       } catch (err) {
         logger.error("Failed to perform auto login", err);
         setError(

@@ -56,13 +56,17 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
 
   // Initialize matching service when client is available
   useEffect(() => {
+    logger.info(`[useMatching] useEffect triggered, client is ${client ? 'available' : 'NULL'}`);
+
     if (!client) {
+      logger.warn("[useMatching] No client available, cannot initialize matching service");
       serviceRef.current = null;
       setState(MatchingState.Idle);
       return;
     }
 
     logger.info("[useMatching] Client available, initializing matching service...");
+    logger.info(`[useMatching] Client user ID: ${client.getUserId()}`);
     setIsInitializing(true);
     setState(MatchingState.Initializing);
 
