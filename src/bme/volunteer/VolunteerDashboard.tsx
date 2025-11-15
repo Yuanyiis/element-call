@@ -70,10 +70,15 @@ export const VolunteerDashboard: FC = () => {
     refreshAvailableCount();
   }, [refreshAvailableCount]);
 
-  // Navigate to call room when matched
+  // Navigate to call room when registered as volunteer or matched with help seeker
   useEffect(() => {
-    if (state === MatchingState.Matched && matchResult?.roomId) {
-      logger.info(`Navigating to call room: ${matchResult.roomId}`);
+    if (state === MatchingState.WaitingAsVolunteer && matchResult?.roomId) {
+      // Volunteer should enter their call room and wait there
+      logger.info(`Volunteer registered. Navigating to call room: ${matchResult.roomId}`);
+      navigate(`/${matchResult.roomId}`);
+    } else if (state === MatchingState.Matched && matchResult?.roomId) {
+      // Also handle being matched (this may not be needed for volunteers)
+      logger.info(`Matched! Navigating to call room: ${matchResult.roomId}`);
       navigate(`/${matchResult.roomId}`);
     }
   }, [state, matchResult, navigate]);
@@ -113,16 +118,8 @@ export const VolunteerDashboard: FC = () => {
     }
   }, [unregisterAsVolunteer]);
 
-  // Show waiting view if already waiting
-  if (state === MatchingState.WaitingAsVolunteer) {
-    return (
-      <VolunteerWaitingView
-        onStopWaiting={handleStopWaiting}
-        availableVolunteers={availableVolunteers}
-        stats={stats}
-      />
-    );
-  }
+  // Note: Volunteers now navigate directly to their call room when registered
+  // The VolunteerWaitingView is no longer used - volunteers wait in the call room
 
   // Calculate hours from total duration
   const totalHours = Math.floor(stats.totalDuration / 3600);
