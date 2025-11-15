@@ -52,13 +52,19 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
 
   const serviceRef = useRef<MatchingService | null>(null);
   const pollingIntervalRef = useRef<number | null>(null);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   // Initialize matching service when client is available
   useEffect(() => {
     if (!client) {
       serviceRef.current = null;
+      setState(MatchingState.Idle);
       return;
     }
+
+    logger.info("[useMatching] Client available, initializing matching service...");
+    setIsInitializing(true);
+    setState(MatchingState.Initializing);
 
     const service = new MatchingService(client);
 
@@ -66,11 +72,14 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
       .initialize()
       .then(() => {
         serviceRef.current = service;
-        logger.info("Matching service initialized");
+        setIsInitializing(false);
+        setState(MatchingState.Idle);
+        logger.info("[useMatching] Matching service initialized successfully");
       })
       .catch((err) => {
-        logger.error("Failed to initialize matching service", err);
+        logger.error("[useMatching] Failed to initialize matching service", err);
         setError("Failed to initialize matching service");
+        setIsInitializing(false);
         setState(MatchingState.Error);
       });
 
@@ -126,13 +135,24 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
   // Register as volunteer
   const registerAsVolunteer = useCallback(
     async (language: string) => {
-      if (!serviceRef.current) {
-        throw new Error("Matching service not initialized");
-      }
-
       try {
         setState(MatchingState.Initializing);
         setError(null);
+
+        // Wait for service to be initialized
+        logger.info("[registerAsVolunteer] Waiting for matching service...");
+        const maxWaitTime = 10000; // 10 seconds
+        const startTime = Date.now();
+
+        while (!serviceRef.current && Date.now() - startTime < maxWaitTime) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        if (!serviceRef.current) {
+          throw new Error("Matching service failed to initialize within timeout");
+        }
+
+        logger.info("[registerAsVolunteer] Matching service ready, registering volunteer...");
 
         const roomId = await serviceRef.current.registerAsVolunteer(language);
 
@@ -204,13 +224,24 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
   // Request help
   const requestHelp = useCallback(
     async (language: string) => {
-      if (!serviceRef.current) {
-        throw new Error("Matching service not initialized");
-      }
-
       try {
         setState(MatchingState.SearchingForVolunteer);
         setError(null);
+
+        // Wait for service to be initialized
+        logger.info("[requestHelp] Waiting for matching service...");
+        const maxWaitTime = 10000; // 10 seconds
+        const startTime = Date.now();
+
+        while (!serviceRef.current && Date.now() - startTime < maxWaitTime) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        if (!serviceRef.current) {
+          throw new Error("Matching service failed to initialize within timeout");
+        }
+
+        logger.info("[requestHelp] Matching service ready, requesting help...");
 
         const result = await serviceRef.current.requestHelp(language);
 
