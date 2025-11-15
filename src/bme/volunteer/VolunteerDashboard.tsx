@@ -39,6 +39,29 @@ export const VolunteerDashboard: FC = () => {
   } = useMatchingContext();
 
   const [isStarting, setIsStarting] = useState(false);
+  const [micPermission, setMicPermission] = useState<
+    "prompt" | "granted" | "denied"
+  >("prompt");
+
+  // Check microphone permission
+  useEffect(() => {
+    const checkPermission = async (): Promise<void> => {
+      try {
+        const result = await navigator.permissions.query({
+          name: "microphone" as PermissionName,
+        });
+        setMicPermission(result.state as "granted" | "denied" | "prompt");
+
+        result.addEventListener("change", () => {
+          setMicPermission(result.state as "granted" | "denied" | "prompt");
+        });
+      } catch (err) {
+        logger.warn("Failed to check microphone permission", err);
+      }
+    };
+
+    checkPermission();
+  }, []);
 
   // Refresh volunteer count on mount
   useEffect(() => {
@@ -56,6 +79,20 @@ export const VolunteerDashboard: FC = () => {
   const handleStartWaiting = useCallback(async () => {
     setIsStarting(true);
     try {
+      // Request microphone permission first
+      if (micPermission !== "granted") {
+        logger.info("Requesting microphone permission...");
+        try {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+          setMicPermission("granted");
+          logger.info("Microphone permission granted");
+        } catch (err) {
+          logger.error("Failed to get microphone permission", err);
+          setMicPermission("denied");
+          return;
+        }
+      }
+
       await registerAsVolunteer(language);
       logger.info("Started waiting for help requests");
     } catch (err) {
@@ -63,7 +100,7 @@ export const VolunteerDashboard: FC = () => {
     } finally {
       setIsStarting(false);
     }
-  }, [registerAsVolunteer, language]);
+  }, [registerAsVolunteer, language, micPermission]);
 
   const handleStopWaiting = useCallback(async () => {
     try {
@@ -138,6 +175,21 @@ export const VolunteerDashboard: FC = () => {
           </Text>
         </div>
 
+        {micPermission === "denied" && (
+          <div className={styles.warning}>
+            <div className={styles.warningIcon}>🎤</div>
+            <Heading size="sm" weight="semibold">
+              {t("bme.volunteer.mic_permission", "Microphone access required")}
+            </Heading>
+            <Text size="sm">
+              {t(
+                "bme.volunteer.mic_permission_desc",
+                "Please allow microphone access to help people",
+              )}
+            </Text>
+          </div>
+        )}
+
         {(error || loginError) && (
           <div className={styles.error}>
             <Text>{error || loginError}</Text>
@@ -188,7 +240,11 @@ export const VolunteerDashboard: FC = () => {
           <Button
             size="lg"
             onClick={handleStartWaiting}
-            disabled={isStarting || state === MatchingState.Initializing}
+            disabled={
+              isStarting ||
+              state === MatchingState.Initializing ||
+              micPermission === "denied"
+            }
             className={styles.startButton}
           >
             {isStarting || state === MatchingState.Initializing
