@@ -9,7 +9,7 @@ cat > /opt/bme-helper/public/config.json << 'EOF'
 {
   "default_server_config": {
     "m.homeserver": {
-      "base_url": "http://150.107.201.220:8008",
+      "base_url": "https://call.fst.gs",
       "server_name": "call.fst.gs"
     }
   }
@@ -24,7 +24,7 @@ if [ -d "/opt/bme-helper/dist" ]; then
 {
   "default_server_config": {
     "m.homeserver": {
-      "base_url": "http://150.107.201.220:8008",
+      "base_url": "https://call.fst.gs",
       "server_name": "call.fst.gs"
     }
   }
@@ -35,7 +35,7 @@ fi
 
 echo ""
 echo "Configuration fixed!"
-echo "Element Call will now use the Synapse server at http://150.107.201.220:8008"
+echo "Element Call will now use the Synapse server at https://call.fst.gs"
 echo ""
 echo "Now restart nginx:"
 echo "  systemctl reload nginx"
