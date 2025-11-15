@@ -515,7 +515,7 @@ export const computeUrlParams = (search = "", hash = ""): UrlParams => {
     allowIceFallback: parser.getFlag("allowIceFallback"),
     perParticipantE2EE: parser.getFlag("perParticipantE2EE"),
     controlledAudioDevices: parser.getFlag("controlledAudioDevices"),
-    skipLobby: isWidget ? parser.getFlag("skipLobby") : false,
+    skipLobby: parser.getFlag("skipLobby"),
     // In SPA mode the user should always exit to the home screen when hanging
     // up, rather than being sent back to the lobby
     returnToLobby: isWidget ? parser.getFlag("returnToLobby") : false,
