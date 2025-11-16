@@ -19,6 +19,8 @@ import { UserMenuContainer } from "../../UserMenuContainer";
 import { useAutoGuestLogin } from "../useAutoGuestLogin";
 import { SearchingView } from "./SearchingView";
 import { NoVolunteersView } from "./NoVolunteersView";
+import { getRelativeRoomUrl } from "../../utils/matrix";
+import { E2eeType } from "../../e2ee/e2eeType";
 import styles from "./HelpRequestView.module.css";
 
 /**
@@ -73,7 +75,13 @@ export const HelpRequestView: FC = () => {
   useEffect(() => {
     if (state === MatchingState.Matched && matchResult?.roomId) {
       logger.info(`Navigating to call room: ${matchResult.roomId}`);
-      navigate(`/${matchResult.roomId}`);
+      // Use getRelativeRoomUrl to generate the correct URL format
+      const roomUrl = getRelativeRoomUrl(
+        matchResult.roomId,
+        { kind: E2eeType.SHARED_KEY, secret: "" }, // Encryption will be handled by the call room
+        undefined, // No room name
+      );
+      navigate(roomUrl);
     }
   }, [state, matchResult, navigate]);
 

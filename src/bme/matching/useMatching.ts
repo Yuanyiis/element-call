@@ -6,7 +6,8 @@ Please see LICENSE in the repository root for full details.
 */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { MatrixClient } from "matrix-js-sdk";
+import type { MatrixClient, MatrixEvent, Room } from "matrix-js-sdk";
+import { RoomStateEvent } from "matrix-js-sdk";
 import { logger } from "matrix-js-sdk/lib/logger";
 import { MatchingService } from "./MatchingService";
 import { VolunteerStatus, type MatchResult } from "../types";
@@ -52,6 +53,8 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
 
   const serviceRef = useRef<MatchingService | null>(null);
   const pollingIntervalRef = useRef<number | null>(null);
+  const membershipListenerRef = useRef<((event: MatrixEvent) => void) | null>(null);
+  const volunteerRoomIdRef = useRef<string | null>(null);
 
   // Initialize matching service when client is available
   useEffect(() => {
@@ -81,14 +84,15 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
     };
   }, [client]);
 
-  // Cleanup polling on unmount
+  // Cleanup polling and listeners on unmount
   useEffect(() => {
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
       }
+      cleanupRoomMembershipListener();
     };
-  }, []);
+  }, [cleanupRoomMembershipListener]);
 
   // Refresh available volunteer count
   const refreshAvailableCount = useCallback(async () => {
@@ -123,6 +127,103 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
     }
   }, []);
 
+  // Setup room membership listener for volunteers
+  const setupRoomMembershipListener = useCallback(
+    (roomId: string) => {
+      if (!client) return;
+
+      // Remove existing listener if any
+      if (membershipListenerRef.current && volunteerRoomIdRef.current) {
+        const oldRoom = client.getRoom(volunteerRoomIdRef.current);
+        if (oldRoom) {
+          oldRoom.off(RoomStateEvent.Members, membershipListenerRef.current);
+        }
+      }
+
+      volunteerRoomIdRef.current = roomId;
+
+      // Create new listener
+      const membershipListener = (event: MatrixEvent): void => {
+        const room = client.getRoom(roomId);
+        if (!room) return;
+
+        const joinedMembers = room.getJoinedMembers();
+        logger.info(
+          `[Room ${roomId}] Membership changed. Joined members: ${joinedMembers.length}`,
+        );
+
+        // If more than one member (volunteer + help seeker), we have a match!
+        if (joinedMembers.length > 1) {
+          logger.info(
+            `[Room ${roomId}] Help seeker joined! Transitioning to Matched state.`,
+          );
+          setState(MatchingState.Matched);
+          // Remove listener since we're now matched
+          room.off(RoomStateEvent.Members, membershipListener);
+          membershipListenerRef.current = null;
+        }
+      };
+
+      membershipListenerRef.current = membershipListener;
+
+      // Wait for room to be available and set up listener
+      const waitForRoomAndListen = async (): Promise<void> => {
+        let attempts = 0;
+        const maxAttempts = 20;
+
+        while (attempts < maxAttempts) {
+          const room = client.getRoom(roomId);
+          if (room) {
+            logger.info(
+              `[Room ${roomId}] Room synced, setting up membership listener. Current members: ${room.getJoinedMembers().length}`,
+            );
+            room.on(RoomStateEvent.Members, membershipListener);
+
+            // Check if someone already joined while we were waiting
+            const joinedMembers = room.getJoinedMembers();
+            if (joinedMembers.length > 1) {
+              logger.info(
+                `[Room ${roomId}] Help seeker already joined! Transitioning to Matched state.`,
+              );
+              setState(MatchingState.Matched);
+              room.off(RoomStateEvent.Members, membershipListener);
+              membershipListenerRef.current = null;
+            }
+            return;
+          }
+
+          logger.info(
+            `[Room ${roomId}] Waiting for room to sync... (attempt ${attempts + 1}/${maxAttempts})`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          attempts++;
+        }
+
+        logger.warn(`[Room ${roomId}] Room did not sync after ${maxAttempts} attempts`);
+      };
+
+      waitForRoomAndListen().catch((err) => {
+        logger.error("Failed to setup room membership listener", err);
+      });
+    },
+    [client],
+  );
+
+  // Cleanup room membership listener
+  const cleanupRoomMembershipListener = useCallback(() => {
+    if (client && membershipListenerRef.current && volunteerRoomIdRef.current) {
+      const room = client.getRoom(volunteerRoomIdRef.current);
+      if (room) {
+        room.off(RoomStateEvent.Members, membershipListenerRef.current);
+        logger.info(
+          `[Room ${volunteerRoomIdRef.current}] Removed membership listener`,
+        );
+      }
+      membershipListenerRef.current = null;
+      volunteerRoomIdRef.current = null;
+    }
+  }, [client]);
+
   // Register as volunteer
   const registerAsVolunteer = useCallback(
     async (language: string) => {
@@ -142,6 +243,9 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
         // Start polling for stats
         startPolling();
 
+        // Setup listener for when help seekers join
+        setupRoomMembershipListener(roomId);
+
         logger.info("Successfully registered as volunteer");
       } catch (err) {
         logger.error("Failed to register as volunteer", err);
@@ -152,7 +256,7 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
         throw err;
       }
     },
-    [startPolling],
+    [startPolling, setupRoomMembershipListener],
   );
 
   // Unregister as volunteer
@@ -164,6 +268,7 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
       setState(MatchingState.Idle);
       setMatchResult(null);
       stopPolling();
+      cleanupRoomMembershipListener();
       logger.info("Unregistered as volunteer");
     } catch (err) {
       logger.error("Failed to unregister as volunteer", err);
@@ -173,7 +278,7 @@ export function useMatching(client: MatrixClient | null): UseMatchingResult {
           : "Failed to unregister as volunteer",
       );
     }
-  }, [stopPolling]);
+  }, [stopPolling, cleanupRoomMembershipListener]);
 
   // Mark as busy
   const markAsBusy = useCallback(async () => {
